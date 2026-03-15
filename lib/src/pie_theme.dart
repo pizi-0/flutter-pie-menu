@@ -58,6 +58,9 @@ class PieTheme {
     this.tooltipCanvasAlignment,
     this.tooltipUseFittedBox = false,
     this.pieBounceDuration = const Duration(seconds: 1),
+    this.pieBounceCurve = Curves.elasticOut,
+    this.pieStaggered = false,
+    this.pieBounceEnabled = true,
     this.childBounceEnabled = true,
     this.childTiltEnabled = true,
     this.childBounceDuration = const Duration(milliseconds: 150),
@@ -165,6 +168,15 @@ class PieTheme {
   /// Duration of [PieButton] bounce animation.
   final Duration pieBounceDuration;
 
+  /// Curve for the [PieButton] bounce animation.
+  final Curve pieBounceCurve;
+
+  /// Whether to animate the [PieButton]s in a staggered sequence.
+  final bool pieStaggered;
+
+  /// Whether to bounce the [PieButton]s when the menu opens.
+  final bool pieBounceEnabled;
+
   /// Whether to bounce the [PieMenu] child on press.
   final bool childBounceEnabled;
 
@@ -264,6 +276,9 @@ class PieTheme {
     Alignment? tooltipCanvasAlignment,
     bool? tooltipUseFittedBox,
     Duration? pieBounceDuration,
+    Curve? pieBounceCurve,
+    bool? pieStaggered,
+    bool? pieBounceEnabled,
     bool? childBounceEnabled,
     bool? childTiltEnabled,
     Duration? childBounceDuration,
@@ -310,6 +325,9 @@ class PieTheme {
           tooltipCanvasAlignment ?? this.tooltipCanvasAlignment,
       tooltipUseFittedBox: tooltipUseFittedBox ?? this.tooltipUseFittedBox,
       pieBounceDuration: pieBounceDuration ?? this.pieBounceDuration,
+      pieBounceCurve: pieBounceCurve ?? this.pieBounceCurve,
+      pieStaggered: pieStaggered ?? this.pieStaggered,
+      pieBounceEnabled: pieBounceEnabled ?? this.pieBounceEnabled,
       childBounceEnabled: childBounceEnabled ?? this.childBounceEnabled,
       childTiltEnabled: childTiltEnabled ?? this.childTiltEnabled,
       childBounceDuration: childBounceDuration ?? this.childBounceDuration,

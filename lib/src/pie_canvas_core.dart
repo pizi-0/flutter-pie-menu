@@ -47,9 +47,8 @@ class PieCanvasCoreState extends State<PieCanvasCore>
   );
 
   /// Bouncing animation for the [PieButton]s.
-  late final _buttonBounceAnimation = Tween(begin: 0.0, end: 1.0).animate(
-    CurvedAnimation(parent: _buttonBounceController, curve: Curves.elasticOut),
-  );
+  // ignore: unused_field
+  late Animation<double> _buttonBounceAnimation;
 
   /// Controls [_fadeAnimation].
   late final _fadeController = AnimationController(
@@ -79,7 +78,7 @@ class PieCanvasCoreState extends State<PieCanvasCore>
   var _pressedOffset = Offset.zero;
 
   /// Actions of the current [PieMenu].
-  var _actions = <PieAction>[];
+  var actions = <PieAction>[];
 
   /// Starts when the pointer is down,
   /// is triggered after the delay duration specified in [PieTheme],
@@ -157,7 +156,7 @@ class PieCanvasCoreState extends State<PieCanvasCore>
 
   /// Angle of the first [PieButton] in degrees.
   double get _baseAngle {
-    final arc = (_actions.length - 1) * _angleDiff;
+    final arc = (actions.length - 1) * _angleDiff;
     final customAngle = _theme.customAngle;
 
     if (customAngle != null) {
@@ -223,6 +222,12 @@ class PieCanvasCoreState extends State<PieCanvasCore>
   @override
   void initState() {
     super.initState();
+    _buttonBounceAnimation = Tween(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _buttonBounceController,
+        curve: _theme.pieBounceCurve,
+      ),
+    );
     WidgetsBinding.instance.addObserver(this);
     widget.controller?.addListener(_handleControllerEvent);
   }
@@ -290,7 +295,7 @@ class PieCanvasCoreState extends State<PieCanvasCore>
     final menuRenderBox = _menuRenderBox;
     final hoveredAction = _state.hoveredAction;
     if (hoveredAction != null) {
-      _tooltip = _actions[hoveredAction].tooltip;
+      _tooltip = actions[hoveredAction].tooltip;
     }
 
     final absorbGestures = _state.menuOpen;
@@ -461,7 +466,7 @@ class PieCanvasCoreState extends State<PieCanvasCore>
                             } else {
                               final offsets = [
                                 _pointerOffset,
-                                for (var i = 0; i < _actions.length; i++)
+                                for (var i = 0; i < actions.length; i++)
                                   _getActionOffset(i),
                               ];
 
@@ -504,7 +509,7 @@ class PieCanvasCoreState extends State<PieCanvasCore>
                           //* action buttons start *//
                           Flow(
                             delegate: PieDelegate(
-                              bounceAnimation: _buttonBounceAnimation,
+                              bounceController: _buttonBounceController,
                               pointerOffset: _pointerOffset,
                               canvasOffset: _canvasOffset,
                               baseAngle: _baseAngle,
@@ -532,10 +537,11 @@ class PieCanvasCoreState extends State<PieCanvasCore>
                                       ),
                                     ),
                               ),
-                              for (int i = 0; i < _actions.length; i++)
+                              for (int i = 0; i < actions.length; i++)
                                 PieButton(
                                   theme: _theme,
-                                  action: _actions[i],
+                                  action: actions[i],
+                                  index: i,
                                   angle: _getActionAngle(i),
                                   hovered: i == hoveredAction,
                                 ),
@@ -583,6 +589,14 @@ class PieCanvasCoreState extends State<PieCanvasCore>
     );
 
     _theme = theme;
+    _buttonBounceController.duration = _theme.pieBounceDuration;
+    _fadeController.duration = _theme.fadeDuration;
+    _buttonBounceAnimation = Tween(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _buttonBounceController,
+        curve: _theme.pieBounceCurve,
+      ),
+    );
 
     _contextMenuSubscription = _platform.listenContextMenu(
       shouldPreventDefault: rightClicked,
@@ -617,7 +631,12 @@ class PieCanvasCoreState extends State<PieCanvasCore>
       _attachTimer = Timer(Duration.zero, () {
         _detachTimer?.cancel();
 
-        _buttonBounceController.forward(from: 0);
+        if (_theme.pieBounceEnabled) {
+          _buttonBounceController.forward(from: 0);
+        } else {
+          _buttonBounceController.value = 1;
+        }
+
         _fadeController.forward(from: 0);
 
         _menuRenderBox = renderBox;
@@ -627,7 +646,7 @@ class PieCanvasCoreState extends State<PieCanvasCore>
         _menuChild = child;
         _childBounceAnimation = bounceAnimation;
         _onMenuToggle = onMenuToggle;
-        _actions = actions;
+        this.actions = actions;
         _tooltip = null;
 
         _notifier.update(
@@ -684,7 +703,7 @@ class PieCanvasCoreState extends State<PieCanvasCore>
         final hoveredAction = _state.hoveredAction;
 
         if (hoveredAction != null) {
-          _actions[hoveredAction].onSelect();
+          actions[hoveredAction].onSelect();
         }
 
         _notifier.update(menuOpen: false);
@@ -728,7 +747,7 @@ class PieCanvasCoreState extends State<PieCanvasCore>
         var closestDistance = double.infinity;
         var closestAction = 0;
 
-        for (var i = 0; i < _actions.length; i++) {
+        for (var i = 0; i < actions.length; i++) {
           final actionOffset = _getActionOffset(i);
           final distance = (actionOffset - offset).distance;
           if (distance < closestDistance) {

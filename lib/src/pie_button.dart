@@ -15,6 +15,7 @@ class PieButton extends StatefulWidget {
     super.key,
     required this.theme,
     required this.action,
+    required this.index,
     required this.hovered,
     required this.angle,
   });
@@ -24,6 +25,9 @@ class PieButton extends StatefulWidget {
 
   /// Action to display.
   final PieAction action;
+
+  /// Index of this button.
+  final int index;
 
   /// Whether this button is currently hovered.
   final bool hovered;
@@ -84,7 +88,28 @@ class _PieButtonState extends State<PieButton>
   @override
   Widget build(BuildContext context) {
     if (!_previouslyOpen && _state.menuOpen) {
-      _scaleController.forward(from: 0);
+      if (_theme.pieBounceEnabled) {
+        if (_theme.pieStaggered) {
+          final totalDuration = _theme.pieBounceDuration;
+          final buttonCount = PieNotifier.of(context).canvas.actions.length;
+          if (buttonCount > 0) {
+            final staggerDelay = totalDuration.inMilliseconds / buttonCount / 2;
+            final start = min(
+              totalDuration.inMilliseconds,
+              staggerDelay * widget.index,
+            );
+            Future.delayed(Duration(milliseconds: start.round()), () {
+              if (mounted) _scaleController.forward(from: 0);
+            });
+          } else {
+            _scaleController.forward(from: 0);
+          }
+        } else {
+          _scaleController.forward(from: 0);
+        }
+      } else {
+        _scaleController.value = 1;
+      }
     }
 
     _previouslyOpen = _state.menuOpen;

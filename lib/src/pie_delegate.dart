@@ -10,16 +10,16 @@ import 'package:vector_math/vector_math.dart' hide Matrix4;
 /// Customized [FlowDelegate] to size and position pie actions efficiently.
 class PieDelegate extends FlowDelegate {
   PieDelegate({
-    required this.bounceAnimation,
+    required this.bounceController,
     required this.pointerOffset,
     required this.canvasOffset,
     required this.baseAngle,
     required this.angleDiff,
     required this.theme,
-  }) : super(repaint: bounceAnimation);
+  }) : super(repaint: bounceController);
 
-  /// Bouncing animation for the buttons.
-  final Animation bounceAnimation;
+  /// Animation controller for the buttons.
+  final AnimationController bounceController;
 
   /// Offset of the widget displayed in the center of the [PieMenu].
   final Offset pointerOffset;
@@ -38,7 +38,7 @@ class PieDelegate extends FlowDelegate {
 
   @override
   bool shouldRepaint(PieDelegate oldDelegate) {
-    return bounceAnimation != oldDelegate.bounceAnimation;
+    return bounceController != oldDelegate.bounceController;
   }
 
   @override
@@ -46,6 +46,30 @@ class PieDelegate extends FlowDelegate {
     final dx = pointerOffset.dx - canvasOffset.dx;
     final dy = pointerOffset.dy - canvasOffset.dy;
     final count = context.childCount;
+    final buttonCount = count - 1;
+
+    final totalDuration = bounceController.duration;
+
+    Animation<double> getAnimation(int index) {
+      if (!theme.pieStaggered || buttonCount <= 0 || totalDuration == null) {
+        return CurvedAnimation(
+          parent: bounceController,
+          curve: theme.pieBounceCurve,
+        );
+      }
+
+      final staggerDelay = totalDuration.inMilliseconds / buttonCount / 2;
+      final start = min(totalDuration.inMilliseconds, staggerDelay * index);
+
+      return CurvedAnimation(
+        parent: bounceController,
+        curve: Interval(
+          start / totalDuration.inMilliseconds,
+          1,
+          curve: theme.pieBounceCurve,
+        ),
+      );
+    }
 
     for (var i = 0; i < count; ++i) {
       final size = context.getChildSize(i)!;
@@ -62,15 +86,16 @@ class PieDelegate extends FlowDelegate {
           ),
         );
       } else {
+        final animation = getAnimation(i - 1);
         context.paintChild(
           i,
           transform: Matrix4.translationValues(
             dx -
                 size.width / 2 +
-                theme.radius * cos(angleInRadians) * bounceAnimation.value,
+                theme.radius * cos(angleInRadians) * animation.value,
             dy -
                 size.height / 2 -
-                theme.radius * sin(angleInRadians) * bounceAnimation.value,
+                theme.radius * sin(angleInRadians) * animation.value,
             0,
           ),
         );

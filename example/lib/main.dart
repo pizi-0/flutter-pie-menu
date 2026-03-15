@@ -129,6 +129,13 @@ class StylingPage extends StatelessWidget {
                       children: [
                         Expanded(
                           child: PieMenu(
+                            theme: const PieTheme(
+                              pieBounceDuration: Duration(milliseconds: 500),
+                              pieBounceCurve: Curves.elasticOut,
+                              pieStaggered: true,
+                              childBounceEnabled: false,
+                              rightClickShowsMenu: true,
+                            ),
                             actions: [
                               PieAction(
                                 tooltip: const Text('Play'),
