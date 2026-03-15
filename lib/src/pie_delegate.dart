@@ -51,14 +51,19 @@ class PieDelegate extends FlowDelegate {
     final totalDuration = bounceController.duration;
 
     Animation<double> getAnimation(int index) {
-      if (!theme.pieStaggered || buttonCount <= 0 || totalDuration == null) {
+      if (theme.pieAnimationStyle != PieAnimationStyle.stagger ||
+          buttonCount <= 0 ||
+          totalDuration == null) {
         return CurvedAnimation(
           parent: bounceController,
           curve: theme.pieBounceCurve,
         );
       }
 
-      final staggerDelay = totalDuration.inMilliseconds / buttonCount / 2;
+      final staggerDelay =
+          totalDuration.inMilliseconds /
+          buttonCount *
+          theme.pieStaggerDelayFactor;
       final start = min(totalDuration.inMilliseconds, staggerDelay * index);
 
       return CurvedAnimation(

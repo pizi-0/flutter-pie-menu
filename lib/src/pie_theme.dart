@@ -24,6 +24,18 @@ enum PieOverlayStyle {
   around,
 }
 
+/// Defines how [PieButton]s should be animated when the menu opens.
+enum PieAnimationStyle {
+  /// No animation.
+  none,
+
+  /// Buttons animate simultaneously with a bounce effect.
+  bounce,
+
+  /// Buttons animate in a staggered sequence.
+  stagger,
+}
+
 /// Defines the behavior and the appearance
 /// of [PieCanvas] and [PieMenu] widgets.
 class PieTheme {
@@ -59,8 +71,8 @@ class PieTheme {
     this.tooltipUseFittedBox = false,
     this.pieBounceDuration = const Duration(seconds: 1),
     this.pieBounceCurve = Curves.elasticOut,
-    this.pieStaggered = false,
-    this.pieBounceEnabled = true,
+    this.pieAnimationStyle = PieAnimationStyle.bounce,
+    this.pieStaggerDelayFactor = 0.5,
     this.childBounceEnabled = true,
     this.childTiltEnabled = true,
     this.childBounceDuration = const Duration(milliseconds: 150),
@@ -171,11 +183,13 @@ class PieTheme {
   /// Curve for the [PieButton] bounce animation.
   final Curve pieBounceCurve;
 
-  /// Whether to animate the [PieButton]s in a staggered sequence.
-  final bool pieStaggered;
+  /// How [PieButton]s should be animated when the menu opens.
+  final PieAnimationStyle pieAnimationStyle;
 
-  /// Whether to bounce the [PieButton]s when the menu opens.
-  final bool pieBounceEnabled;
+  /// A factor to control the delay of staggered animations.
+  ///
+  /// Can be between 0 and 1.
+  final double pieStaggerDelayFactor;
 
   /// Whether to bounce the [PieMenu] child on press.
   final bool childBounceEnabled;
@@ -277,8 +291,8 @@ class PieTheme {
     bool? tooltipUseFittedBox,
     Duration? pieBounceDuration,
     Curve? pieBounceCurve,
-    bool? pieStaggered,
-    bool? pieBounceEnabled,
+    PieAnimationStyle? pieAnimationStyle,
+    double? pieStaggerDelayFactor,
     bool? childBounceEnabled,
     bool? childTiltEnabled,
     Duration? childBounceDuration,
@@ -326,8 +340,9 @@ class PieTheme {
       tooltipUseFittedBox: tooltipUseFittedBox ?? this.tooltipUseFittedBox,
       pieBounceDuration: pieBounceDuration ?? this.pieBounceDuration,
       pieBounceCurve: pieBounceCurve ?? this.pieBounceCurve,
-      pieStaggered: pieStaggered ?? this.pieStaggered,
-      pieBounceEnabled: pieBounceEnabled ?? this.pieBounceEnabled,
+      pieAnimationStyle: pieAnimationStyle ?? this.pieAnimationStyle,
+      pieStaggerDelayFactor:
+          pieStaggerDelayFactor ?? this.pieStaggerDelayFactor,
       childBounceEnabled: childBounceEnabled ?? this.childBounceEnabled,
       childTiltEnabled: childTiltEnabled ?? this.childTiltEnabled,
       childBounceDuration: childBounceDuration ?? this.childBounceDuration,

@@ -88,16 +88,20 @@ class _PieButtonState extends State<PieButton>
   @override
   Widget build(BuildContext context) {
     if (!_previouslyOpen && _state.menuOpen) {
-      if (_theme.pieBounceEnabled) {
-        if (_theme.pieStaggered) {
+      if (_theme.pieAnimationStyle != PieAnimationStyle.none) {
+        if (_theme.pieAnimationStyle == PieAnimationStyle.stagger) {
           final totalDuration = _theme.pieBounceDuration;
           final buttonCount = PieNotifier.of(context).canvas.actions.length;
           if (buttonCount > 0) {
-            final staggerDelay = totalDuration.inMilliseconds / buttonCount / 2;
+            final staggerDelay =
+                totalDuration.inMilliseconds /
+                buttonCount *
+                _theme.pieStaggerDelayFactor;
             final start = min(
               totalDuration.inMilliseconds,
               staggerDelay * widget.index,
             );
+            _scaleController.value = 0;
             Future.delayed(Duration(milliseconds: start.round()), () {
               if (mounted) _scaleController.forward(from: 0);
             });

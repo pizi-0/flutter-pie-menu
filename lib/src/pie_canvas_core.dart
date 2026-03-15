@@ -631,7 +631,7 @@ class PieCanvasCoreState extends State<PieCanvasCore>
       _attachTimer = Timer(Duration.zero, () {
         _detachTimer?.cancel();
 
-        if (_theme.pieBounceEnabled) {
+        if (_theme.pieAnimationStyle != PieAnimationStyle.none) {
           _buttonBounceController.forward(from: 0);
         } else {
           _buttonBounceController.value = 1;

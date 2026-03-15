@@ -130,9 +130,10 @@ class StylingPage extends StatelessWidget {
                         Expanded(
                           child: PieMenu(
                             theme: const PieTheme(
-                              pieBounceDuration: Duration(milliseconds: 500),
-                              pieBounceCurve: Curves.elasticOut,
-                              pieStaggered: true,
+                              pieAnimationStyle: PieAnimationStyle.stagger,
+                              pieBounceCurve: Curves.easeOutCubic,
+                              pieBounceDuration: Duration(milliseconds: 200),
+                              pieStaggerDelayFactor: 1,
                               childBounceEnabled: false,
                               rightClickShowsMenu: true,
                             ),
